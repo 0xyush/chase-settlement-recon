@@ -1,0 +1,127 @@
+{
+  "report": "Funded Transaction Fee Details",
+  "parsing_config": {
+    "file_format": "csv",
+    "header_row_index": 2,
+    "footer_marker": "END"
+  },
+  "skip_configs": [
+    {
+      "conditions": [
+        {
+          "identifier": "Action Type Code",
+          "operator": "equals",
+          "value": "AUTH"
+        }
+      ]
+    },
+    {
+      "conditions": [
+        {
+          "identifier": "Action Type Code",
+          "operator": "equals",
+          "value": "OTHER"
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "currency": {
+      "identifier": "Presentment Currency Code",
+      "transformation_rules": [
+        {
+          "type": "trim"
+        }
+      ]
+    },
+    "amount": {
+      "identifier": "Presentment Amount",
+      "unit": "major_unit",
+      "transformation_rules": [
+        {
+          "type": "trim"
+        },
+        {
+          "type": "absolute"
+        }
+      ]
+    },
+    "balance_direction": {
+      "identifier": "Sale/Refund Code",
+      "credit_values": [
+        "S"
+      ],
+      "debit_values": [
+        "R"
+      ],
+      "transformation_rules": [
+        {
+          "type": "trim"
+        },
+        {
+          "type": "default_value",
+          "value": "R"
+        }
+      ]
+    },
+    "effective_at": {
+      "identifier": "Activity Date",
+      "date_format": {
+        "order": "month_day_year",
+        "delimiter": "slash"
+      }
+    },
+    "order_id": {
+      "identifier": "Merchant Order Number"
+    }
+  },
+  "metadata_fields": [
+    {
+      "identifier": "Payment Method Code",
+      "field_name": "card_brand",
+      "required": false,
+      "exposed": true
+    },
+    {
+      "identifier": "Action Type Code",
+      "field_name": "action_type",
+      "required": true,
+      "exposed": true
+    },
+    {
+      "identifier": "Acquirer Reference Number",
+      "field_name": "arn",
+      "required": false,
+      "exposed": true,
+      "searchable": true
+    },
+    {
+      "identifier": "Fund Transfer Identifier",
+      "field_name": "deposit_id",
+      "required": true,
+      "exposed": true,
+      "searchable": true
+    },
+    {
+      "identifier": "Fund Transfer Effective Date",
+      "field_name": "deposit_date",
+      "required": false
+    },
+    {
+      "identifier": "Net Financial Activity",
+      "field_name": "net_amount",
+      "type": "major_unit",
+      "required": false
+    },
+    {
+      "identifier": "Processing Fees",
+      "field_name": "processing_fees",
+      "type": "major_unit",
+      "required": false
+    }
+  ],
+  "unique_constraint": [
+    "order_id",
+    "balance_direction"
+  ]
+}

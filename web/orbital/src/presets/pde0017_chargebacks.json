@@ -1,0 +1,137 @@
+{
+  "report": "Chargeback Activity (PDE0017)",
+  "parsing_config": {
+    "file_format": "dfr",
+    "section": "PDE0017",
+    "record_type": "RPDE0017D",
+    "columns": [
+      "Record Type",
+      "Entity Type",
+      "Entity #",
+      "Issuer Chargeback Amount",
+      "Previous Partial Representment",
+      "Presentment Currency",
+      "Category",
+      "Status Flag",
+      "Sequence #",
+      "Merchant Order #",
+      "Card Account #",
+      "Reason Code",
+      "Transaction Date",
+      "Chargeback Date",
+      "Activity Date",
+      "Current Action Amount",
+      "Fee Amount",
+      "Usage Code",
+      "MOP",
+      "Authorization Date",
+      "Chargeback Due Date",
+      "Ticket #"
+    ]
+  },
+  "skip_configs": [
+    {
+      "conditions": [
+        {
+          "identifier": "Category",
+          "operator": "not_equals",
+          "value": "RTM"
+        },
+        {
+          "identifier": "Category",
+          "operator": "not_equals",
+          "value": "PARRTM"
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "currency": {
+      "identifier": "Presentment Currency"
+    },
+    "amount": {
+      "identifier": "Current Action Amount",
+      "transformation_rules": [
+        {
+          "type": "absolute"
+        }
+      ]
+    },
+    "balance_direction": {
+      "identifier": "Category",
+      "credit_values": [],
+      "debit_values": [
+        "RTM",
+        "PARRTM"
+      ]
+    },
+    "effective_at": {
+      "identifier": "Activity Date",
+      "date_format": {
+        "order": "month_day_year",
+        "delimiter": "slash"
+      }
+    },
+    "order_id": {
+      "identifier": "Merchant Order #"
+    }
+  },
+  "metadata_fields": [
+    {
+      "identifier": "Sequence #",
+      "field_name": "chargeback_id",
+      "required": true,
+      "exposed": true,
+      "searchable": true
+    },
+    {
+      "identifier": "Category",
+      "field_name": "chargeback_stage",
+      "required": true,
+      "exposed": true
+    },
+    {
+      "identifier": "Reason Code",
+      "field_name": "reason_code",
+      "exposed": true
+    },
+    {
+      "identifier": "MOP",
+      "field_name": "card_brand",
+      "exposed": true
+    },
+    {
+      "identifier": "Card Account #",
+      "field_name": "card_last4",
+      "transformation_rules": [
+        {
+          "type": "regex",
+          "pattern": "(\\d{4})?$",
+          "group": 1
+        }
+      ]
+    },
+    {
+      "identifier": "Issuer Chargeback Amount",
+      "field_name": "issuer_chargeback_amount",
+      "type": "major_unit"
+    },
+    {
+      "identifier": "Transaction Date",
+      "field_name": "transaction_date"
+    },
+    {
+      "identifier": "Chargeback Date",
+      "field_name": "chargeback_date"
+    },
+    {
+      "identifier": "Usage Code",
+      "field_name": "usage_code"
+    }
+  ],
+  "unique_constraint": [
+    "order_id",
+    "balance_direction",
+    "chargeback_id"
+  ]
+}

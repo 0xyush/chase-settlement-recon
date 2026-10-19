@@ -1,0 +1,161 @@
+{
+  "report": "Deposit Detail (ACT0010), live layout",
+  "parsing_config": {
+    "file_format": "dfr",
+    "section": "ACT0010",
+    "record_type": "RACT0010",
+    "columns": [
+      "Record Type",
+      "Submission Date",
+      "PID #",
+      "PID Short Name",
+      "Submission #",
+      "Record #",
+      "Entity Type",
+      "Entity #",
+      "Presentment Currency",
+      "Merchant Order #",
+      "RDFI #",
+      "Account #",
+      "Expiration Date",
+      "Amount",
+      "MOP",
+      "Action Code",
+      "Auth Date",
+      "Auth Code",
+      "Auth Response Code",
+      "Trace #",
+      "Consumer Country Code",
+      "Transaction Type",
+      "MCC",
+      "Unlisted Field 24",
+      "Interchange Qualification Code",
+      "Durbin Regulated",
+      "Interchange Unit Fee",
+      "Interchange Face Value % Fee",
+      "Total Interchange Amount",
+      "Total Assessment Amount",
+      "Other Debit Passthrough Fees",
+      "Settlement Currency"
+    ]
+  },
+  "skip_configs": [
+    {
+      "conditions": [
+        {
+          "identifier": "Action Code",
+          "operator": "equals",
+          "value": "AR"
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "currency": {
+      "identifier": "Presentment Currency"
+    },
+    "amount": {
+      "identifier": "Amount",
+      "transformation_rules": [
+        {
+          "type": "absolute"
+        }
+      ]
+    },
+    "balance_direction": {
+      "identifier": "Action Code",
+      "credit_values": [
+        "DP",
+        "D",
+        "DO",
+        "i"
+      ],
+      "debit_values": [
+        "RF",
+        "R",
+        "ER"
+      ]
+    },
+    "effective_at": {
+      "identifier": "Submission Date",
+      "date_format": {
+        "order": "month_day_year",
+        "delimiter": "slash"
+      }
+    },
+    "order_id": {
+      "identifier": "Merchant Order #"
+    }
+  },
+  "metadata_fields": [
+    {
+      "identifier": "MOP",
+      "field_name": "card_brand",
+      "required": true,
+      "exposed": true
+    },
+    {
+      "identifier": "Account #",
+      "field_name": "card_last4",
+      "transformation_rules": [
+        {
+          "type": "regex",
+          "pattern": "(\\d{4})?$",
+          "group": 1
+        }
+      ]
+    },
+    {
+      "identifier": "Entity #",
+      "field_name": "division_id",
+      "required": true,
+      "exposed": true,
+      "searchable": true
+    },
+    {
+      "identifier": "Submission #",
+      "field_name": "submission_number",
+      "exposed": true,
+      "searchable": true
+    },
+    {
+      "identifier": "Record #",
+      "field_name": "record_number"
+    },
+    {
+      "identifier": "Auth Code",
+      "field_name": "auth_code"
+    },
+    {
+      "identifier": "Auth Date",
+      "field_name": "auth_date"
+    },
+    {
+      "identifier": "MCC",
+      "field_name": "mcc"
+    },
+    {
+      "identifier": "Transaction Type",
+      "field_name": "transaction_type",
+      "exposed": true
+    },
+    {
+      "identifier": "Interchange Qualification Code",
+      "field_name": "interchange_qualification"
+    },
+    {
+      "identifier": "Total Interchange Amount",
+      "field_name": "interchange_fee",
+      "type": "major_unit"
+    },
+    {
+      "identifier": "Total Assessment Amount",
+      "field_name": "assessment_fee",
+      "type": "major_unit"
+    }
+  ],
+  "unique_constraint": [
+    "order_id",
+    "balance_direction"
+  ]
+}

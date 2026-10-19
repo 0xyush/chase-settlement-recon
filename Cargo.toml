@@ -1,0 +1,6 @@
+[workspace]
+resolver = "3"
+members = ["engines/commerce", "engines/orbital", "wasm"]
+
+[profile.release.package.recon_wasm]
+opt-level = "s"

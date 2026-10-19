@@ -1,0 +1,27 @@
+{
+  "name": "chase-recon-dashboard",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "res:build": "rescript",
+    "res:watch": "rescript -w",
+    "dev": "rescript && vite",
+    "build": "rescript && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@rescript/core": "^0.6.0",
+    "@rescript/react": "^0.12.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "rescript": "^11.1.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.1",
+    "autoprefixer": "^10.6.1",
+    "postcss": "^8.5.28",
+    "tailwindcss": "^3.4.19",
+    "vite": "^8.3.2"
+  }
+}

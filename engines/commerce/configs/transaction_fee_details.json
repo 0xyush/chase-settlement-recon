@@ -1,0 +1,119 @@
+{
+  "report": "Transaction Fee Details",
+  "parsing_config": {
+    "file_format": "csv",
+    "header_row_index": 2,
+    "footer_marker": "END"
+  },
+  "skip_configs": [
+    {
+      "conditions": [
+        {
+          "identifier": "Merchant Order Number",
+          "operator": "equals",
+          "value": null
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "currency": {
+      "identifier": "Presentment Currency Code",
+      "transformation_rules": [
+        {
+          "type": "trim"
+        }
+      ]
+    },
+    "amount": {
+      "identifier": "Transaction Amount in Presentment Currency",
+      "unit": "major_unit",
+      "transformation_rules": [
+        {
+          "type": "trim"
+        },
+        {
+          "type": "absolute"
+        }
+      ]
+    },
+    "balance_direction": {
+      "identifier": "Transaction Amount in Presentment Currency",
+      "credit_values": [
+        "credit"
+      ],
+      "debit_values": [
+        "debit"
+      ],
+      "transformation_rules": [
+        {
+          "type": "trim"
+        },
+        {
+          "type": "starts_with",
+          "prefix": "-",
+          "then": "debit",
+          "otherwise": "credit"
+        }
+      ]
+    },
+    "effective_at": {
+      "identifier": "Activity Date",
+      "date_format": {
+        "order": "month_day_year",
+        "delimiter": "slash"
+      }
+    },
+    "order_id": {
+      "identifier": "Merchant Order Number"
+    }
+  },
+  "metadata_fields": [
+    {
+      "identifier": "Payment Method Code",
+      "field_name": "card_brand",
+      "required": true,
+      "exposed": true
+    },
+    {
+      "identifier": "Entity Identifier",
+      "field_name": "entity_id",
+      "required": true,
+      "exposed": true,
+      "searchable": true
+    },
+    {
+      "identifier": "Settled Deposit Amount",
+      "field_name": "settled_amount",
+      "type": "major_unit",
+      "required": false
+    },
+    {
+      "identifier": "Interchange & Assessment Fees",
+      "field_name": "interchange_fees",
+      "type": "major_unit",
+      "required": false
+    },
+    {
+      "identifier": "Processing Fees",
+      "field_name": "processing_fees",
+      "type": "major_unit",
+      "required": false
+    },
+    {
+      "identifier": "Net Financial Activity",
+      "field_name": "net_amount",
+      "type": "major_unit",
+      "required": false
+    },
+    {
+      "identifier": "Fund Transfer Instruction Number",
+      "field_name": "fund_transfer_instruction",
+      "required": false
+    }
+  ],
+  "unique_constraint": [
+    "order_id",
+    "balance_direction"
+  ]
+}

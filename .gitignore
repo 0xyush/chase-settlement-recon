@@ -1,0 +1,15 @@
+# build output
+target/
+dist/
+node_modules/
+lib/
+*.res.mjs
+.bsb.lock
+web/wasm-pkg/
+web/*/src/engine/wasm/
+deploy/site/
+deploy/.credentials
+# local outputs
+out/
+*.pdf
+.DS_Store

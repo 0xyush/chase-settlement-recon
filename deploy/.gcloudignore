@@ -1,0 +1,3 @@
+# Upload only what the Dockerfile needs (site/ is built by deploy.sh and is gitignored).
+.credentials
+deploy.sh

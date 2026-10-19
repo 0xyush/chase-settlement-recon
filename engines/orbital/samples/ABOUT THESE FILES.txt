@@ -1,0 +1,24 @@
+Synthetic Chase Orbital / Paymentech Delimited File Reports (DFR).
+
+There is no public DFR sample, so these are made up from Chase's DFR spec v2.2,
+deterministically (orbital_recon samples). Masked test card numbers only.
+Replace them with a real file from the merchant's Chase account when there is one.
+
+0000999999.261001.d.B101.dfr
+  Day 1, financial file (B): FIN0010 deposit summary + ACT0010 deposit detail, comma-delimited, CRLF line ends. Amex lines are conveyed (C).
+
+0000999999.261001.d.A101.dfr
+  Day 1, exception file (A): PDE0017 chargeback activity, summary (S) and detail (D) records. Only RTM and PARRTM move money.
+
+0000999999.261002.d.B102.dfr
+  Day 2, financial file (B) in another setup Chase offers: pipe-delimited, ACT0010 with the interchange detail option, a trailing pipe on data lines.
+
+0000999999.261003.d.B103.dfr
+  Day 3, no activity: the file header, each report header, the file trailer.
+
+0000999999.261004.d.B104.dfr
+  Day 4, cut off in transfer: stops mid-line with no *DFREND trailer. Must be rejected, not half-processed.
+
+0000999999.261005.d.B105.dfr
+  Day 5, financial file (B) in the layout of a live ACT0010 file: tab-delimited, field 22 filled (1, 2 or 7), one extra field before the interchange fields, fees with no leading zero, settlement currency last. Has bank-account (ECP) rows with action code i. Read it with act0010_deposit_detail_live.json.
+

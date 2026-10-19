@@ -1,0 +1,18 @@
+/* Hyperswitch Control Center look: tokens live in tailwind.config.js (nd_* scales, theme.json colors). */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { -webkit-font-smoothing: antialiased; }
+  body { @apply m-0 bg-hyperswitch_background text-nd_gray-800 font-inter-style text-fs-14 leading-20; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+}
+
+@layer utilities {
+  /* Control Center's sidebar-scrollbar / no-scrollbar helpers */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .sidebar-scrollbar::-webkit-scrollbar { width: 4px; }
+  .sidebar-scrollbar::-webkit-scrollbar-thumb { border-radius: 3px; background-color: rgb(var(--c-nd_gray-300)); }
+}

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="brand/hyperswitch-icon.svg" />
+    <title>Orbital Recon Prototype</title>
+    <script>
+      // Light by default; the navbar toggle saves the choice. Set before render so there is no flash.
+      try {
+        document.documentElement.classList.toggle("dark", localStorage.getItem("orbital-theme-mode") === "dark");
+      } catch {}
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/Main.res.mjs"></script>
+  </body>
+</html>

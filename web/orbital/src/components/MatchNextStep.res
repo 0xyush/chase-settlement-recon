@@ -64,9 +64,9 @@ let make = (
             {React.string(
               switch summary {
               | Some((source, s)) =>
-                `${Int.toLocaleString(s.matched)} of ${Int.toLocaleString(s.chase_entries)} entries matched · ${source}`
+                `${Int.toLocaleString(s.matched)} of ${Int.toLocaleString(s.chase_entries)} matched · ${source}`
               | None =>
-                `Pair the ${Int.toLocaleString(staged)} staged entries with Hyperswitch payments and refunds, then compare amounts.`
+                `Compare these ${Int.toLocaleString(staged)} rows with Hyperswitch payments and refunds.`
               },
             )}
           </span>
@@ -130,8 +130,8 @@ let make = (
         <Icon name="nd-toast-info" size=13 />
         {React.string(
           staged == 0
-            ? "Nothing is staged in this file, so there is nothing to match."
-            : `No live export yet: Run match uses a mock built from this file, as if paid through ${connector}.`,
+            ? "Nothing to match in this file."
+            : `No Hyperswitch export yet, so Run match uses a test export made from this file (${connector}).`,
         )}
       </p>
     }}

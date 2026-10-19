@@ -5,6 +5,8 @@ type loaded = {name: string, text: string, records: array<Engine.record_>, detec
 let count = (results: array<Engine.rowResult>, outcome) =>
   results->Array.filter(r => r.outcome == outcome)->Array.length
 
+@module("./engine/nav.js") external scrollToView: string => unit = "scrollToView"
+
 let wideScreen: bool = %raw(`typeof window !== "undefined" && window.innerWidth >= 1024`)
 
 module Results = {
@@ -17,6 +19,8 @@ module Results = {
     ~onReset: unit => unit,
     ~onSelect: Engine.rowResult => unit,
     ~onMatched: option<Hyperswitch.summary> => unit,
+    ~nav: string,
+    ~navRequest: int,
   ) => {
     let (filter, setFilter) = React.useState(() => "All")
     let (tab, setTab) = React.useState(() => "entries")
@@ -30,6 +34,32 @@ module Results = {
       onMatched(None)
       None
     }, [output])
+
+    // A sidebar click opens the matching view: Exceptions are the failed rows, Transformed
+    // Entries the staged ones, Transactions the match results (or every row before a match),
+    // Rules Library the transformation config.
+    React.useEffect1(() => {
+      switch nav {
+      | "Exceptions" =>
+        setFilter(_ => "Failed")
+        setTab(_ => "entries")
+      | "Transformed Entries" =>
+        setFilter(_ => "Success")
+        setTab(_ => "entries")
+      | "Transactions" =>
+        switch matchRun {
+        | Some(_) =>
+          setMatchFilter(_ => "all")
+          setTab(_ => "match")
+        | None =>
+          setFilter(_ => "All")
+          setTab(_ => "entries")
+        }
+      | "Rules Library" => setTab(_ => "config")
+      | _ => ()
+      }
+      None
+    }, [navRequest])
 
     // The next step: match the staged entries with a Hyperswitch export in the Rust engine.
     let runMatch = (source, csv) =>
@@ -73,7 +103,7 @@ module Results = {
       let ids = views->Array.map(((id, _, _)) => id)
       let found = ids->Array.indexOf(tab)
       let selected = found < 0 ? 0 : found
-      <div className="flex flex-col gap-4">
+      <div id="results-tabs" className="flex flex-col gap-4 scroll-mt-4">
         <Tabs
           tabs={views->Array.map(((_, t, _)) => t)}
           selected
@@ -165,6 +195,13 @@ let make = () => {
   let (config, setConfig) = React.useState((): option<Engine.config> => None)
   let (selected, setSelected) = React.useState((): option<Engine.rowResult> => None)
   let (sidebarExpanded, setSidebarExpanded) = React.useState(() => wideScreen)
+  let (nav, setNav) = React.useState(() => "Pipelines")
+  let (navRequest, setNavRequest) = React.useState(() => 0)
+  let onNav = name => {
+    setNav(_ => name)
+    setNavRequest(n => n + 1)
+    scrollToView(name == "Overview" || name == "Pipelines" ? "top" : "results-tabs")
+  }
 
   let (output, setOutput) = React.useState((): option<Engine.output> => None)
   let (matched, setMatched) = React.useState((): option<Hyperswitch.summary> => None)
@@ -211,7 +248,7 @@ let make = () => {
   }
 
   <div className="flex h-screen bg-hyperswitch_background">
-    <Sidebar expanded=sidebarExpanded />
+    <Sidebar expanded=sidebarExpanded active=nav onSelect=onNav />
     <div id="page-scroll" className="flex relative flex-col flex-1 min-w-0 overflow-y-auto overflow-x-hidden">
       <div className="w-full max-w-fixedPageWidth md:px-12 px-5 pt-3">
         <Navbar onToggleSidebar={() => setSidebarExpanded(v => !v)} pending />
@@ -248,10 +285,18 @@ let make = () => {
               onReset={() => setConfig(_ => Some(Engine.configFor(f.detection)))}
               onSelect={r => setSelected(_ => Some(r))}
               onMatched={summary => setMatched(_ => summary)}
+              nav
+              navRequest
             />
           </>
         | (Some(_), Some(_), None) => <Helpers.InfoBox message="Running the Rust engine on this file…" />
-        | _ => <UploadDropzone onLoad=load />
+        | _ =>
+          <>
+            {nav == "Pipelines" || nav == "Overview"
+              ? React.null
+              : <Helpers.InfoBox message={`${nav}: load a file or pick a sample below to see it.`} />}
+            <UploadDropzone onLoad=load />
+          </>
         }}
       </div>
     </div>

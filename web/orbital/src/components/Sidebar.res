@@ -1,43 +1,43 @@
 // Control Center Sidebar.res + ReconEngineSidebarValues.res: Operate / Monitor / Configure sections.
 open Typography
 
-type item = {name: string, icon: string, active: bool}
+type item = {name: string, icon: string}
 type section = {heading: string, items: array<item>}
 
 let sections = [
   {
     heading: "Operate",
     items: [
-      {name: "Overview", icon: "nd-home", active: false},
-      {name: "Exceptions", icon: "nd-inbox", active: false},
+      {name: "Overview", icon: "nd-home"},
+      {name: "Exceptions", icon: "nd-inbox"},
     ],
   },
   {
     heading: "Monitor",
     items: [
-      {name: "Transactions", icon: "nd-reports", active: false},
-      {name: "Transformed Entries", icon: "nd-connectors", active: false},
-      {name: "Pipelines", icon: "nd-workflow", active: true},
+      {name: "Transactions", icon: "nd-reports"},
+      {name: "Transformed Entries", icon: "nd-connectors"},
+      {name: "Pipelines", icon: "nd-workflow"},
     ],
   },
-  {heading: "Configure", items: [{name: "Rules Library", icon: "nd-settings", active: false}]},
+  {heading: "Configure", items: [{name: "Rules Library", icon: "nd-settings"}]},
 ]
 
 module Link = {
   @react.component
-  let make = (~item: item, ~expanded: bool) => {
-    let selected = item.active
+  let make = (~item: item, ~expanded: bool, ~selected: bool, ~onClick: unit => unit) => {
+    let style = selected
       ? `bg-sidebar-hoverColor text-sidebar-textColorPrimary ${body.md.semibold}`
       : `text-sidebar-textColor hover:bg-sidebar-hoverColor ${body.md.medium}`
     let layout = expanded ? "gap-4 px-3 py-1.5" : "justify-center py-2"
-    <div
+    <button
+      type_="button"
       title=item.name
-      className={`relative overflow-hidden flex flex-row items-center rounded-lg cursor-pointer whitespace-nowrap transition duration-300 ${layout} ${selected}`}>
-      <Icon
-        size=18 name=item.icon className={item.active ? "text-sidebar-textColorPrimary" : "text-nd_gray-500"}
-      />
+      onClick={_ => onClick()}
+      className={`relative overflow-hidden flex flex-row items-center rounded-lg cursor-pointer whitespace-nowrap text-left transition duration-300 ${layout} ${style}`}>
+      <Icon size=18 name=item.icon className={selected ? "text-sidebar-textColorPrimary" : "text-nd_gray-500"} />
       {expanded ? React.string(item.name) : React.null}
-    </div>
+    </button>
   }
 }
 
@@ -77,8 +77,9 @@ module MorePages = {
   }
 }
 
+// Each item opens a view of the same page: the app decides which (App.res, onNav).
 @react.component
-let make = (~expanded: bool) => {
+let make = (~expanded: bool, ~active: string, ~onSelect: string => unit) => {
   let width = expanded ? "w-56" : "w-14"
   <aside
     className={`${width} shrink-0 h-screen flex flex-col bg-sidebar-primary border-r border-sidebar-borderColor transition-all duration-200 overflow-hidden`}>
@@ -102,7 +103,9 @@ let make = (~expanded: bool) => {
                 </div>
               : <div className="mx-2 mt-2 border-t border-sidebar-borderColor" />}
             {section.items
-            ->Array.map(item => <Link key=item.name item expanded />)
+            ->Array.map(item =>
+              <Link key=item.name item expanded selected={item.name == active} onClick={() => onSelect(item.name)} />
+            )
             ->React.array}
           </React.Fragment>
         )

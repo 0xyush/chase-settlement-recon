@@ -15,8 +15,8 @@ export function computeChecks(output, config) {
     const differ = tie.lines.filter((l) => l.status !== "tied").length;
     checks.push(
       tie.tied
-        ? { level: "ok", text: "Staged detail ties to Chase's own FIN0010 summary for every card brand: nothing was lost between the file and staging." }
-        : { level: "bad", text: `${differ} card brand line${differ === 1 ? "" : "s"} do not tie to Chase's FIN0010 summary. See the Tie-out tab.` },
+        ? { level: "ok", text: "Every row adds up to Chase's daily summary. Nothing is missing." }
+        : { level: "bad", text: `${differ} card line${differ === 1 ? " doesn't" : "s don't"} add up to Chase's daily summary. See Tie-out.` },
     );
     const conveyed = tie.lines.filter((l) => (l.settled_conveyed ?? "").includes("C"));
     if (conveyed.length) {
@@ -24,10 +24,10 @@ export function computeChecks(output, config) {
       const total = Object.entries(tie.conveyed_net).map(([c, v]) => `${c} ${formatMinor(v)}`).join(", ");
       checks.push({
         level: "warn",
-        text: `${brands} is conveyed (C): Chase lists ${total}, but the card network pays it to the merchant directly. It is not in Chase's deposit.`,
+        text: `${brands} (${total}) is paid by ${brands === "Amex" ? "Amex" : "the card network"} directly, not by Chase. It won't be in Chase's deposit.`,
       });
     } else if (entries.some((e) => e.metadata.card_brand === "AX")) {
-      checks.push({ level: "ok", text: "Amex is settled (S) in this file: Chase pays it with everything else." });
+      checks.push({ level: "ok", text: "Chase pays Amex here, together with the other cards." });
     }
   }
 
@@ -40,7 +40,7 @@ export function computeChecks(output, config) {
     const list = Object.entries(stages).map(([stage, n]) => `${stage} ${n}`).join(", ");
     checks.push({
       level: "ok",
-      text: `Chargeback stages in this file: ${list}. Only RTM and PARRTM (returned to the merchant) take money from the merchant, so only they are staged, as debits; RECD and REPR stay in Chase's inventory.`,
+      text: `Chargebacks: ${list}. Only the returned ones (RTM, PARRTM) take money, so only those are staged.`,
     });
   }
 
@@ -49,8 +49,8 @@ export function computeChecks(output, config) {
     const tooLong = entries.filter((e) => e.order_id.length > CHASE_ORDER_ID_LIMIT).length;
     checks.push(
       tooLong
-        ? { level: "bad", text: `${tooLong} order ids exceed Chase's ${CHASE_ORDER_ID_LIMIT} characters.` }
-        : { level: "warn", text: `Longest order id is ${longest} characters. Chase holds ${CHASE_ORDER_ID_LIMIT}, and the merchant's ids are 30.` },
+        ? { level: "bad", text: `${tooLong} order IDs are longer than the ${CHASE_ORDER_ID_LIMIT} characters Chase keeps.` }
+        : { level: "warn", text: `Chase keeps only ${CHASE_ORDER_ID_LIMIT} characters of an order ID. The merchant's IDs are 30, so they won't fit as is.` },
     );
 
     const key = config.unique_constraint || ["order_id"];
@@ -64,11 +64,11 @@ export function computeChecks(output, config) {
     const duplicates = Object.values(counts).filter((n) => n > 1).length;
     checks.push(
       duplicates
-        ? { level: "warn", text: `${duplicates} duplicate key${duplicates === 1 ? "" : "s"} on ${key.join(" + ")}.` }
-        : { level: "ok", text: `Unique key ${key.join(" + ")} holds for every staged row.` },
+        ? { level: "warn", text: `${duplicates} duplicate row${duplicates === 1 ? "" : "s"} (same ${key.join(" + ")}).` }
+        : { level: "ok", text: "No duplicate rows." },
     );
   } else if (results.length === 0 && output.file) {
-    checks.push({ level: "ok", text: "No activity: the file has its report headers and no data records, which is how Chase sends a quiet day." });
+    checks.push({ level: "ok", text: "Quiet day: the file has no transactions." });
   }
 
   const reasons = {};
@@ -79,7 +79,7 @@ export function computeChecks(output, config) {
   Object.entries(reasons)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
-    .forEach(([reason, n]) => checks.push({ level: "bad", text: `${rows(n)} failed on ${reason}.` }));
+    .forEach(([reason, n]) => checks.push({ level: "bad", text: `${rows(n)} failed: ${reason}.` }));
 
   return checks;
 }

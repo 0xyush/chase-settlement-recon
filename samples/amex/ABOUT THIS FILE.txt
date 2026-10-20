@@ -1,0 +1,18 @@
+Mock American Express GRRCN settlement file, version 4.01 layout. Made-up data only.
+
+It is Amex's side of the Amex rows in engines/orbital/samples/0000999999.261005.d.B105.dfr
+(the Chase DFR mock):
+
+- 40 Amex sales and 4 refunds, USD 1,465.14 gross. That equals Chase's conveyed Amex total in the
+  same DFR file (FIN0010 lines marked C).
+- Amex pays it on Oct 8 as one payment (number 9261008001): 1,465.14 minus a made-up 2.50%
+  discount (36.60) = 1,428.54 to the bank.
+- Each TRANSACTN row carries the Chase order number in the Invoice Reference Number field and the
+  Chase auth code as the approval code. Whether real files do this is not confirmed.
+
+Field order follows the April 2024 v4.01 layout as read by
+https://github.com/hotter6163/amex-grrcn-viewer, and the file loads in that viewer's parser.
+It has not been checked against a real Amex file; get a US sample from the merchant's Amex
+representative before relying on it.
+
+Regenerate: scripts/make_amex_mock.py engines/orbital/samples/0000999999.261005.d.B105.dfr samples/amex

@@ -58,13 +58,14 @@ cargo run --release -- run samples/0000999999.261005.d.B105.dfr configs/act0010_
 | `engines/commerce` | Engine for Commerce Center CSV reports |
 | `engines/*/configs` | One JSON config per report: field positions, what to skip, what maps where |
 | `engines/*/samples` | Sample files: synthetic DFR files, J.P. Morgan's public CSV samples |
+| `samples/amex` | Mock Amex GRRCN file (v4.01) for the Amex rows of the Day 5 DFR sample. Made by `scripts/make_amex_mock.py`. |
 | `wasm` | Both engines as WebAssembly |
 | `web/orbital`, `web/commerce` | The dashboards (ReScript + React). The site opens on Orbital. |
 | `deploy/` | Cloud Run deploy behind a sign-in |
 
 ## Not done yet
 
-- Amex's own settlement file (GRRCN), to match the conveyed Amex payments.
+- Reading Amex's settlement file (GRRCN). A mock is in `samples/amex`; a real US sample is still needed.
 - The bank statement, to confirm each deposit landed.
 - A live Hyperswitch export (the samples use mocks).
 
